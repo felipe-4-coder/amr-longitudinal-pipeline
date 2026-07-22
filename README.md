@@ -24,6 +24,21 @@ com o objetivo de responder uma pergunta biológica específica:
 O organismo alvo é configurável — o pipeline pode ser aplicado a qualquer 
 bactéria com genomas disponíveis no NCBI.
 
+### 22/07 - Adição do módulo `qc_filter.py`
+
+**O que foi feito:**
+Adição do módulo `qc_filter.py`, que realiza controle de qualidade sobre os genomas 
+baixados pelo `download_genomes.py`. O módulo lê o arquivo `assembly_data_report.jsonl` 
+dentro de cada `.zip` e filtra os genomas com base em:
+
+- Nível de montagem: Complete Genome ou Chromosome
+- N50 > 50.000 bp
+- Tamanho total entre 4,5 MB e 6,5 MB
+
+Genomas corrompidos ou que não atendem os critérios são descartados automaticamente, 
+tornando os dados gerados mais confiáveis e alinhados com o princípio de não confiar 
+cegamente nos outputs — como recomendado pelo Prof. Steven Salzberg (JHU).
+
 ## Tecnologias
 
 - Python + Biopython
