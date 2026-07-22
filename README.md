@@ -19,6 +19,30 @@ com o objetivo de responder uma pergunta biológica específica:
 4. Consolidação  → agrega prevalência de genes AMR por ano
 5. Visualização  → dashboard interativo com evolução temporal
 
+## O que esse projeto faz
+
+### `download_genomes.py`
+Realiza o download automatizado de genomas de um organismo específico diretamente 
+do NCBI, filtrando por ano (2000-2026) e priorizando assemblies RefSeq de nível 
+Complete Genome. Para cada ano, gera um arquivo `.zip` separado na pasta de saída.
+
+### `qc_filter.py`
+Realiza controle de qualidade sobre os genomas baixados, filtrando por nível de 
+montagem, N50 e tamanho total do genoma.
+
+## Como usar
+
+### Download de genomas por ano
+```bash
+python download_genomes.py
+```
+> Requer: `datasets.exe` na pasta do projeto
+
+### Controle de qualidade
+```bash
+python qc_filter.py
+```
+
 ## Configuração
 
 O organismo alvo é configurável — o pipeline pode ser aplicado a qualquer 
