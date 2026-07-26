@@ -95,12 +95,40 @@ de resultado por genoma em `data/results/`.
 **Resultado:**
 1.977 análises AMR executadas automaticamente, cobrindo genomas de 2005 a 2025.
 
+### 26/07 - Adição do módulo `dashboard.py` — Pipeline completo!
+
+**O que foi feito:**
+Adição do módulo `dashboard.py`, que lê o arquivo `amr_longitudinal.csv` gerado 
+pelo `consolidate.py` e gera um dashboard interativo em HTML com a evolução temporal 
+dos 10 genes de resistência mais prevalentes em *Klebsiella pneumoniae* (2005-2025).
+
+**Resultado obtido:**
+O gráfico revelou padrões biologicamente relevantes:
+- Ausência de detecções até 2013 — reflexo do baixo volume de sequenciamento nessa época
+- Crescimento acelerado a partir de 2015 — explosão do NGS de baixo custo
+- Salto expressivo em 2019-2020 — aumento da vigilância genômica durante a pandemia
+- **SHV-100** como gene mais prevalente — consistente com a literatura sobre *K. pneumoniae*
+
+**Tecnologias utilizadas:**
+- Pandas — leitura e manipulação do CSV
+- Plotly Express — geração do dashboard interativo em HTML
+
+## Pipeline completo!
+
+O `amr-longitudinal-pipeline` agora executa o fluxo completo:
+
+download_genomes.py → qc_filter.py → run_amr_pipeline.py → consolidate.py → dashboard.py
+
+Pronto para ser aplicado a qualquer bactéria com genomas disponíveis no NCBI.
+
 ## Tecnologias
 
 - Python + Biopython
 - BLAST 2.17.0+
 - CARD Database 4.0.1
-- CheckM (controle de qualidade)
+- Pandas — leitura e manipulação do CSV
+- Plotly Express — geração do dashboard interativo em HTML
+- CheckM (controle de qualidade - implementação futura)
 - Nextflow (orquestração — implementação futura)
 - Docker (containerização — implementação futura)
 
