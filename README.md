@@ -63,6 +63,28 @@ Genomas corrompidos ou que não atendem os critérios são descartados automatic
 tornando os dados gerados mais confiáveis e alinhados com o princípio de não confiar 
 cegamente nos outputs — como recomendado pelo Prof. Steven Salzberg (JHU).
 
+### 26/07 - Adição do módulo `consolidate.py`
+
+**O que foi feito:**
+Adição do módulo `consolidate.py` que percorre todos os resultados gerados pelo 
+`run_amr_pipeline.py` e consolida a contagem de genes de resistência por ano em 
+uma tabela CSV (`amr_longitudinal.csv`).
+
+A tabela gerada tem:
+- **Linhas** → anos (2005 → 2025)
+- **Colunas** → cada gene de resistência identificado
+- **Valores** → quantidade de genomas naquele ano com aquele gene
+
+### 26/07 - Adição do módulo `run_amr_pipeline.py`
+
+**O que foi feito:**
+Adição do módulo `run_amr_pipeline.py` que automatiza a execução do BLAST em 
+1.977 genomas de *Klebsiella pneumoniae* organizados por ano, gerando um arquivo 
+de resultado por genoma em `data/results/`.
+
+**Resultado:**
+1.977 análises AMR executadas automaticamente, cobrindo genomas de 2005 a 2025.
+
 ## Tecnologias
 
 - Python + Biopython
