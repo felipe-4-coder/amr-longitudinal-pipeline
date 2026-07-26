@@ -109,9 +109,21 @@ O gráfico revelou padrões biologicamente relevantes:
 - Salto expressivo em 2019-2020 — aumento da vigilância genômica durante a pandemia
 - **SHV-100** como gene mais prevalente — consistente com a literatura sobre *K. pneumoniae*
 
-**Tecnologias utilizadas:**
-- Pandas — leitura e manipulação do CSV
-- Plotly Express — geração do dashboard interativo em HTML
+## Estrutura de dados
+
+data/
+├── genomes/
+│ └── K_pneumoniae/ ← uma pasta por bactéria
+│ ├── raw/ ← zips baixados do NCBI
+│ ├── approved/ ← genomas aprovados no QC
+│ ├── results/ ← resultados do BLAST por ano
+│ └── consolidated/ ← CSV e dashboard final
+└── references/
+├── card_db/ ← banco BLAST do CARD
+└── card-ontology/ ← aro.tsv e arquivos de anotação
+
+> Para adicionar uma nova bactéria, crie uma pasta com o nome dela 
+> dentro de `data/genomes/` e siga o mesmo fluxo do pipeline.
 
 ## Pipeline completo!
 
