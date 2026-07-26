@@ -28,7 +28,17 @@ Complete Genome. Para cada ano, gera um arquivo `.zip` separado na pasta de saí
 
 ### `qc_filter.py`
 Realiza controle de qualidade sobre os genomas baixados, filtrando por nível de 
-montagem, N50 e tamanho total do genoma.
+montagem, N50 e tamanho total do genoma. Genomas aprovados são organizados por ano 
+em `data/approved/`. Arquivos corrompidos são ignorados automaticamente.
+
+### `run_amr_pipeline.py`
+Automatiza a execução do BLAST em todos os genomas aprovados, comparando cada um 
+contra o banco de dados CARD. Gera um arquivo de resultado por genoma organizado 
+por ano em `data/results/`.
+
+### `consolidate.py`
+Percorre todos os resultados do BLAST e consolida a contagem de genes de resistência 
+por ano em uma tabela CSV (`amr_longitudinal.csv`), pronta para visualização temporal.
 
 ## Como usar
 
