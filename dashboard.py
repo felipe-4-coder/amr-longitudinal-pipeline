@@ -12,12 +12,16 @@ def gerar_dashboard():
     df_top = df[top_genes]
 
     # Gera o gráfico
+
+    organismo = input("Digite o nome do organismo (ex: Klebsiella pneumoniae): ")
+    anos = df.index.min(), df.index.max()
+
     fig = px.line(
 
         df_top.reset_index(),
         x="ano",
         y=top_genes,
-        title="Evolução da Resistência Antimicrobiana em Klebsiella pneumoniae (2005 - 2025)", 
+        title=f"Evolução da Resistência Antimicrobiana em {organismo} ({anos[0]} - {anos[1]})", 
         labels={"value": "Número de genomas", "ano": "Ano", "variable": "Gene"}
     )
 
