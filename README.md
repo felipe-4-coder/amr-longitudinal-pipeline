@@ -153,6 +153,43 @@ sempre presentes) e **resistoma acessório** (genes adquiridos, com prevalência
 no tempo) — uma distinção biologicamente significativa que serve de base conceitual para 
 o próximo módulo, de detecção de emergência de genes.
 
+### 28/07 - Adição do módulo `gene_emergence.py`
+
+**O problema que este módulo resolve:**
+O gráfico de evolução temporal mostrava contagem de genes por ano, mas não respondia 
+uma pergunta fundamental: **quando cada gene de resistência realmente surgiu na 
+população?** Um gene podia aparecer mais em anos recentes simplesmente por haver mais 
+genomas sequenciados, não necessariamente porque emergiu naquele período.
+
+**O que foi feito:**
+O módulo `gene_emergence.py` percorre o `amr_longitudinal.csv` gene por gene e, para 
+cada um, identifica o primeiro ano em que sua prevalência foi maior que zero. Com base 
+nisso, classifica cada gene em:
+
+- **Ancestral** — presente desde o primeiro ano do dataset (provavelmente parte do 
+  genoma core da espécie ou já disseminado antes do período analisado)
+- **Emergente** — ausente no início do dataset e detectado pela primeira vez em um 
+  ano específico
+- **Nunca detectado** — não encontrado em nenhum genoma analisado
+
+O resultado é salvo em `gene_emergence.csv`, ordenado por ano de emergência.
+
+**Resultado obtido:**
+A análise identificou corretamente o surgimento de genes clinicamente relevantes:
+
+- **KPC-2** (carbapenemase) — emergente em **2011**
+- **CTX-M-14** (ESBL) — emergente em **2011**
+
+Esses resultados são consistentes com a literatura científica sobre a disseminação 
+global desses genes em *Klebsiella pneumoniae* durante a década de 2010, validando 
+a abordagem metodológica do pipeline.
+
+**Como usar:**
+```bash
+python gene_emergence.py
+```
+> Requer: `amr_longitudinal.csv` gerado pelo `consolidate.py`
+
 ## Estrutura de dados
 
 data/
