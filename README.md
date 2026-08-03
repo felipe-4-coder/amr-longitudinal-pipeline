@@ -109,6 +109,50 @@ O gráfico revelou padrões biologicamente relevantes:
 - Salto expressivo em 2019-2020 — aumento da vigilância genômica durante a pandemia
 - **SHV-100** como gene mais prevalente — consistente com a literatura sobre *K. pneumoniae*
 
+### 28/07 - Normalização e refinamento do pipeline (`consolidate.py` + `dashboard.py`)
+
+**O problema identificado:**
+O gráfico original mostrava contagem absoluta de genes por ano, mas isso gerava um viés 
+de amostragem: anos com mais genomas sequenciados (ex: 2021 com 581 genomas) naturalmente 
+mostravam mais genes do que anos com poucos genomas (ex: 2013 com 8 genomas) — mesmo que 
+a resistência real não tivesse aumentado na mesma proporção.
+
+**O que foi feito em `consolidate.py`:**
+
+1. **Contagem única por genoma:** cada gene agora é contado no máximo uma vez por genoma 
+   (usando `set()`), corrigindo a distorção causada por múltiplas cópias do mesmo gene 
+   aparecendo várias vezes no resultado do BLAST de um único genoma.
+
+2. **Normalização por prevalência:** a contagem de cada gene passou a ser dividida pelo 
+   total de genomas daquele ano, convertendo o dado para porcentagem:
+
+   prevalência (%) = (genomas com o gene / total de genomas do ano) × 100
+
+3. **Coluna `total_genomas`:** adicionada ao CSV para permitir filtrar anos com poucos 
+   genomas em análises futuras.
+
+**O que foi feito em `dashboard.py`:**
+
+1. **Filtro de anos com baixa amostragem:** anos com menos de 10 genomas são descartados 
+   do gráfico, evitando picos artificiais causados por 1-2 genomas isolados.
+
+2. **Seleção por crescimento, não por volume:** os genes exibidos no gráfico principal 
+   agora são selecionados pela diferença entre a prevalência média dos 3 primeiros anos 
+   e dos 3 últimos anos — destacando genes que realmente emergiram ou aumentaram, e não 
+   apenas os mais comuns.
+
+3. **Segundo gráfico (prevalência atual):** adicionado um gráfico complementar com os 
+   genes mais prevalentes no último ano disponível. Esse gráfico revelou os genes 
+   intrínsecos da espécie (`ArnT`, `LptD`, `OmpA`, `eptB`, `MdtQ`) — genes cromossomais 
+   presentes em ~100% dos genomas em todos os anos, distintos dos genes de resistência 
+   adquirida via transferência horizontal.
+
+**Resultado:**
+O pipeline agora distingue automaticamente entre **genoma core** (genes intrínsecos, 
+sempre presentes) e **resistoma acessório** (genes adquiridos, com prevalência variável 
+no tempo) — uma distinção biologicamente significativa que serve de base conceitual para 
+o próximo módulo, de detecção de emergência de genes.
+
 ## Estrutura de dados
 
 data/
