@@ -40,6 +40,12 @@ por ano em `data/results/`.
 Percorre todos os resultados do BLAST e consolida a contagem de genes de resistência 
 por ano em uma tabela CSV (`amr_longitudinal.csv`), pronta para visualização temporal.
 
+### `gene_emergence.py`
+Classifica cada gene de resistência identificado como **Ancestral** (presente desde o 
+início do dataset) ou **Emergente** (surgiu em um ano específico), respondendo à pergunta 
+"quando esse gene de resistência surgiu na população?" — corrigindo o viés de amostragem 
+presente na contagem simples por ano.
+
 ## Como usar
 
 ### Download de genomas por ano
@@ -210,7 +216,7 @@ data/
 
 O `amr-longitudinal-pipeline` agora executa o fluxo completo:
 
-download_genomes.py → qc_filter.py → run_amr_pipeline.py → consolidate.py → dashboard.py
+download_genomes.py → qc_filter.py → run_amr_pipeline.py → consolidate.py → dashboard.py → gene_emergence.py
 
 Pronto para ser aplicado a qualquer bactéria com genomas disponíveis no NCBI.
 
