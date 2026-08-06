@@ -20,7 +20,7 @@ def download_genomes():
     # Loop para baixar os genomas de 2000 a 2026
     for ano in range(2000, 2027):
         subprocess.run([
-            "datasets.exe",
+            datasets_exec,
             "download", "genome", "taxon", org_assembly,
             "--assembly-source", "RefSeq",
             "--assembly-level", "complete",
