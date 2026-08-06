@@ -9,6 +9,8 @@ def get_datasets_executable():
 
 def download_genomes():
 
+    datasets_exec = get_datasets_executable()
+
     # Solicita ao usuário o nome do organismo
     org_assembly = input("Digite o nome do organismo que deseja baixar o genoma: ")
 
