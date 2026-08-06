@@ -1,4 +1,11 @@
 import subprocess
+import platform
+
+def get_datasets_executable():
+    if platform.system() == "Windows":
+        return "datasets.exe"
+    else:
+        return "./datasets"
 
 def download_genomes():
 
