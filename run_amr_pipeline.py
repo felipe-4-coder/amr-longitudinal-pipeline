@@ -31,6 +31,11 @@ def amr_search_tool():
             resultado_path = os.path.join(output_dir, ano, f"{genoma}.txt")
             os.makedirs(os.path.join(output_dir, ano), exist_ok=True)
 
+            # Checkpoint: pula se já foi processado
+            if os.path.exists(resultado_path):
+                print(f"  ⏭ Já processado, pulando: {genoma}")
+                continue
+
             # Executa o comando para realizar a busca de genes de resistência a antimicrobianos.
             
             subprocess.run([
