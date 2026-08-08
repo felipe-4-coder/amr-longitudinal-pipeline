@@ -14,10 +14,110 @@ com o objetivo de responder uma pergunta biológica específica:
 ## Arquitetura do Pipeline
 
 1. Download      → genomas de K. pneumoniae por ano via datasets.exe (NCBI)
-2. QC            → controle de qualidade dos assemblies via CheckM
+2. QC            → controle de qualidade dos assemblies via metadados do NCBI
 3. AMR Detection → identificação de genes de resistência via BLAST + CARD
 4. Consolidação  → agrega prevalência de genes AMR por ano
-5. Visualização  → dashboard interativo com evolução temporal
+5. Detecção de emergência → classifica genes como ancestrais ou emergentes
+6. Visualização  → dashboard interativo com evolução temporal
+
+## Metodologia
+
+### Critérios de inclusão e exclusão de genomas
+
+Genomas são incluídos na análise se, e somente se, atenderem simultaneamente:
+- Fonte: RefSeq (NCBI)
+- Nível de montagem: `Complete Genome` ou `Chromosome`
+- N50 de contigs > 50.000 pb
+- Tamanho total do genoma dentro da faixa esperada para a espécie 
+  (ex.: 4,5–6,5 Mb para *Klebsiella pneumoniae*)
+
+Genomas que não atendem a esses critérios, ou cujo arquivo `.zip` está corrompido, 
+são descartados antes de qualquer análise de AMR.
+
+> **Nota metodológica:** este filtro usa métricas de metadados do NCBI como proxy 
+> de qualidade, e não uma ferramenta dedicada de avaliação de completude/contaminação 
+> genômica (ex. CheckM2). Essa é uma limitação conhecida — ver seção "Limitações".
+
+### Cálculo de prevalência
+
+Para cada gene *g* e ano *a*:
+
+prevalência(g, a) = (nº de genomas em "a" com pelo menos 1 hit de "g" no CARD) ÷ (nº total de genomas aprovados no QC em "a") × 100
+
+Cada gene é contado **no máximo uma vez por genoma**, independentemente de quantas 
+cópias ou contigs em que aparece — evitando inflar a prevalência por eventos de 
+duplicação gênica dentro de um único genoma.
+
+Um hit do BLAST é considerado válido quando ≥ 90% de identidade nucleotídica com 
+a sequência de referência do CARD.
+
+Anos com menos de 10 genomas aprovados são excluídos da visualização temporal, 
+por apresentarem alta variância amostral (um único genoma pode gerar oscilação 
+de dezenas de pontos percentuais).
+
+### Classificação Ancestral vs. Emergente
+
+Um gene é classificado como:
+
+- **Ancestral**: detectado no primeiro ano disponível do dataset filtrado
+- **Emergente**: primeira detecção ocorre em ano posterior ao primeiro ano do dataset
+- **Nunca detectado**: ausente em todos os genomas analisados
+
+### Validação do critério de persistência
+
+Um caso concreto ilustra por que a checagem de persistência é necessária, além do 
+critério de simples primeira detecção:
+
+**CTX-M-14** apresentou uma prevalência de 50% em 2011 — porém esse ano tinha 
+apenas **2 genomas totais** no dataset, ou seja, um único genoma isolado gerou 
+esse valor. O gene então desaparece completamente entre 2012 e 2015, reaparecendo 
+de forma consistente e crescente somente a partir de 2016 (quando o volume amostral 
+já era de 50+ genomas por ano).
+
+| Ano  | Prevalência CTX-M-14 | Total de genomas  |
+|------|----------------------|-------------------|
+| 2011 | 50,00%               | 2                 |
+| 2012 | 0,00%                | 1                 |
+| 2013 | 0,00%                | 2                 |
+| 2016 | 8,00%                | 50                |
+| 2019 | 28,16%               | 103               |
+| 2022 | 21,60%               | 412               |
+
+Sem o critério de persistência, o `gene_emergence.py` classificaria erroneamente 
+este gene como "emergente em 2011" — um artefato estatístico de baixo N amostral, 
+não um evento biológico real. Com a checagem de persistência (gene deve permanecer 
+detectável em pelo menos 2 dos 3 anos seguintes à primeira detecção), o CTX-M-14 é 
+corretamente reclassificado como **"não persistiu"**, e sua emergência real — a 
+partir de 2016 — é capturada de forma mais confiável.
+
+Este caso reforça a importância de tratar dados de anos com baixo N amostral como 
+não confiáveis para inferência de emergência, mesmo quando a prevalência percentual 
+parece alta.
+
+> **Limitação crítica:** esta classificação reflete a **primeira detecção dentro 
+> do dataset filtrado**, não a origem evolutiva real do gene na população 
+> bacteriana. Um gene "emergente" em 2011 pode já existir na espécie há décadas, 
+> mas só ter sido sequenciado e depositado no RefSeq a partir daquele ano. 
+> "Emergência no dataset" ≠ "emergência evolutiva". Interpretações epidemiológicas 
+> devem ser cruzadas com literatura publicada antes de conclusões causais.
+
+### Vieses conhecidos
+
+1. **Viés de disponibilidade temporal**: o volume de genomas sequenciados e 
+   depositados no RefSeq cresce exponencialmente ao longo do tempo (poucos 
+   genomas prévios a 2010, centenas a partir de 2019+). Isso é parcialmente 
+   corrigido pela normalização por prevalência, mas não elimina o viés de 
+   quais isolados foram escolhidos para sequenciamento (geralmente amostras 
+   clinicamente relevantes ou de surtos, não amostragem populacional aleatória).
+
+2. **Viés de submissão ao RefSeq**: nem todo genoma sequenciado é depositado 
+   como RefSeq; curadoria do NCBI pode favorecer determinados laboratórios, 
+   países ou contextos clínicos.
+
+3. **Ausência de metadados epidemiológicos**: a versão atual do pipeline não 
+   incorpora país de origem, sequence type (ST), ou fonte do isolado (clínico 
+   vs. ambiental), o que impede diferenciar tendências globais de clusters 
+   regionais ou surtos pontuais.
 
 ## O que esse projeto faz
 
@@ -221,6 +321,35 @@ O gráfico revelou o gene **PC1/blaZ** (penicilinase clássica) como dominante,
 junto com **AAC6_Ie_APH2_Ia** (aminoglicosídeos) e **tet(K)** (tetraciclina), 
 todos condizentes com o perfil de resistência conhecido de *S. aureus*. O gene 
 **tet(38)**, intrínseco à espécie, apareceu com prevalência constante de 100%.
+
+### 09/08 - Refinamento do `gene_emergence.py` com critério de persistência
+
+**O problema identificado:**
+A versão anterior classificava um gene como "emergente" com base apenas no primeiro 
+ano em que sua prevalência era maior que zero — sem verificar se essa detecção se 
+mantinha nos anos seguintes. Isso tornava o módulo vulnerável a falsos positivos 
+gerados por anos com baixo número de genomas amostrados, onde um único genoma 
+isolado pode gerar uma prevalência percentual alta e enganosa.
+
+**O que foi feito:**
+Adicionado um critério de **persistência**: um gene só é confirmado como emergente 
+em determinado ano se também for detectado em pelo menos 2 dos 3 anos seguintes. 
+Caso contrário, é classificado como "Nunca detectado / não persistiu" — sinalizando 
+que a primeira detecção foi provavelmente um artefato estatístico, não um evento 
+biológico real.
+
+**Resultado obtido:**
+O refinamento corrigiu um caso real de falso positivo: o gene **CTX-M-14** havia 
+sido classificado como emergente em 2011 (com 50% de prevalência, mas baseado em 
+apenas 2 genomas totais naquele ano). Com o critério de persistência, esse gene 
+passou corretamente para "não persistiu" — sua emergência real e sustentada ocorre 
+a partir de 2016, quando o volume amostral já é robusto (50+ genomas/ano).
+
+Já o gene **KPC-2** manteve sua classificação como emergente em 2011, reforçando 
+a confiabilidade desse resultado, que agora passou por um filtro estatístico mais 
+rigoroso.
+
+**Ver também:** seção "Validação do critério de persistência" em Metodologia.
 
 ## Estrutura de dados
 
