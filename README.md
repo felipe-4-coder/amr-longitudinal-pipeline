@@ -196,6 +196,32 @@ python gene_emergence.py
 ```
 > Requer: `amr_longitudinal.csv` gerado pelo `consolidate.py`
 
+### 09/08 - Compatibilidade multiplataforma e checkpoint (Colab)
+
+**O que foi feito:**
+
+O projeto foi portado para rodar no Google Colab, permitindo execução em nuvem 
+sem depender do ambiente Windows local. Duas melhorias de código foram necessárias:
+
+1. **`download_genomes.py`** — o script agora detecta o sistema operacional 
+   automaticamente (`platform.system()`) e escolhe entre `datasets.exe` (Windows) 
+   ou `./datasets` (Linux/Colab), sem precisar de alteração manual.
+
+2. **`run_amr_pipeline.py`** — adicionado sistema de checkpoint: antes de rodar o 
+   BLAST em um genoma, o script verifica se o resultado já existe e pula caso 
+   positivo. Isso torna o pipeline resiliente a desconexões do Colab, permitindo 
+   retomar exatamente de onde parou sem perder progresso ou reprocessar genomas.
+
+**Resultado obtido:**
+Pipeline completo executado end-to-end no Colab para *Staphylococcus aureus* 
+(2012-2026), confirmando que o projeto funciona de forma genérica para qualquer 
+organismo com dados disponíveis no NCBI — não apenas *Klebsiella pneumoniae*.
+
+O gráfico revelou o gene **PC1/blaZ** (penicilinase clássica) como dominante, 
+junto com **AAC6_Ie_APH2_Ia** (aminoglicosídeos) e **tet(K)** (tetraciclina), 
+todos condizentes com o perfil de resistência conhecido de *S. aureus*. O gene 
+**tet(38)**, intrínseco à espécie, apareceu com prevalência constante de 100%.
+
 ## Estrutura de dados
 
 data/
